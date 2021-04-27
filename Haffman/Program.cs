@@ -14,8 +14,17 @@ namespace Haffman
 
             Console.WriteLine("Enter path file with text: ");
             string pathStart = Console.ReadLine();
+            Console.WriteLine("Enter path file for result: ");
+            string pathResult = Console.ReadLine();
 
+            Archive.Notify += ShowMessage;
             Archive.ToArchive(pathStart);
+            Archive.UnArchive(pathResult);
+        }
+
+        private static void ShowMessage(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }
