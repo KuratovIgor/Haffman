@@ -108,7 +108,7 @@ namespace HaffmanLibrary
             _binaryCodes.Clear();
             _codesToSymbols.Clear();
         }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
         public static void UnArchive (string pathResult)
         {
             try
@@ -133,7 +133,7 @@ namespace HaffmanLibrary
 
                     while (streamRead.Peek() != -1)
                     {
-                        
+
                     }
                 }
             }
@@ -143,7 +143,7 @@ namespace HaffmanLibrary
             }
         
         }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //Method for counting symbols in text
         private static void ToCountChars(string pathStart)
         {
