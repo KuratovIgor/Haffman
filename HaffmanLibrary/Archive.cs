@@ -33,6 +33,7 @@ namespace HaffmanLibrary
 
             using (StreamReader streamRead = File.OpenText(pathStart))
             {
+                byte[] array;
                 while (streamRead.Peek() != -1)
                 {
                     symbol = Convert.ToChar(streamRead.Read());
@@ -41,66 +42,93 @@ namespace HaffmanLibrary
 
                     countBit = code.Length;
 
+                    
+
                     if (countBit == 8)
                     {
-                        using (StreamWriter streamWrite = new StreamWriter(_pathArchive, true))
+
+                        using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
                         {
-                           // streamWrite.Write($"{code} ");
+                            // streamWrite.Write($"{code} ");
 
-                            List<Byte> byteList = new List<Byte>();
+                            //List<Byte> byteList = new List<Byte>();
 
-                            for (int i = 0; i < code.Length; i += 8)
-                            {
-                                byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                            }
+                            //for (int i = 0; i < code.Length; i += 8)
+                            //{
+                            //   byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
+                            // }
 
-                            streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");
+                            //streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");
+
+                            array = System.Text.Encoding.Default.GetBytes(code);
+
+                        //    using (StreamWriter sr = new StreamWriter(_pathArchive, true))
+                           //    sr.Write(str);
+
+                            //  streamWrite.Write(array, 0, array.Length);
 
                             code = null;
                             countBit = 0;
                         }
+                        using (BinaryWriter sr = new BinaryWriter(File.Open(_pathArchive, FileMode.Append)))
+                            sr.Write(Encoding.ASCII.GetString(array));
                     }
                     else if (countBit > 8)
                     {
                         extraCode = code.Substring(8);
                         code = code.Substring(0, code.Length - extraCode.Length);
 
-                        using (StreamWriter streamWrite = new StreamWriter(_pathArchive, true))
+                        using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
                         {
-                          //  streamWrite.Write($"{code} ");
+                            //  streamWrite.Write($"{code} ");
 
-                            List<Byte> byteList = new List<Byte>();
+                            //List<Byte> byteList = new List<Byte>();
 
-                            for (int i = 0; i < code.Length; i += 8)
-                            {
-                                byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                            }
+                            //for (int i = 0; i < code.Length; i += 8)
+                            //{
+                            //    byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
+                            //}
 
-                            streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");
+                            //streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");
+
+                            array = Encoding.Default.GetBytes(code);
+                       //     streamWrite.Write(array, 0, array.Length);
 
                             code = extraCode;
                             countBit = extraCode.Length;
                         }
+                        using (BinaryWriter sr = new BinaryWriter(File.Open(_pathArchive, FileMode.Append)))
+                            sr.Write(Encoding.ASCII.GetString(array));
                     }
                 }
-                using (StreamWriter streamWrite = new StreamWriter(_pathArchive, true))
+               // byte[] array;
+                using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
                 {
-                    while (extraCode.Length != 8)
-                        extraCode += "0";
-                    
+                    while (code.Length != 8)
+                        code += "0";
+
                     //streamWrite.Write($"{extraCode} ");
 
-                    List<Byte> byteList = new List<Byte>();
+                    //List<Byte> byteList = new List<Byte>();
 
-                    for (int i = 0; i < extraCode.Length; i += 8)
-                    {
-                        byteList.Add(Convert.ToByte(extraCode.Substring(i, 8), 2));
-                    }
+                    //for (int i = 0; i < extraCode.Length; i += 8)
+                    //{
+                    //    byteList.Add(Convert.ToByte(extraCode.Substring(i, 8), 2));
+                    //}
 
-                    streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");               
+                    //streamWrite.Write($"{Encoding.ASCII.GetString(byteList.ToArray())}");               
+
+                    array = System.Text.Encoding.Default.GetBytes(code);
+
+                 //   using (StreamWriter sr = new StreamWriter(_pathArchive, true))
+                   //     sr.Write(str);
+
+                    // streamWrite.Write(array, 0, array.Length);
                 }
+                using (BinaryWriter sr = new BinaryWriter(File.Open(_pathArchive, FileMode.Append)))
+                    sr.Write(Encoding.ASCII.GetString(array));
 
-                
+
                 //byte[] strBytes = System.Text.Encoding.Unicode.GetBytes(symbol);
                 //Console.WriteLine(strBytes);
             }

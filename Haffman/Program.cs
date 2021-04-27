@@ -19,7 +19,7 @@ namespace Haffman
 
             Archive.Notify += ShowMessage;
             Archive.ToArchive(pathStart);
-            Archive.UnArchive(pathResult);
+     //       Archive.UnArchive(pathResult);
         }
 
         private static void ShowMessage(string message)
