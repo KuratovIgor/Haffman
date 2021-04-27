@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Haffman", "Haffman\Haffman.csproj", "{7C49DB0C-DF8B-428B-A34F-2E7DD54C4667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaffmanLibrary", "HaffmanLibrary\HaffmanLibrary.csproj", "{172AE085-AE34-44E7-A2E0-CF9D76085E02}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C49DB0C-DF8B-428B-A34F-2E7DD54C4667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C49DB0C-DF8B-428B-A34F-2E7DD54C4667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C49DB0C-DF8B-428B-A34F-2E7DD54C4667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C49DB0C-DF8B-428B-A34F-2E7DD54C4667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{172AE085-AE34-44E7-A2E0-CF9D76085E02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{172AE085-AE34-44E7-A2E0-CF9D76085E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{172AE085-AE34-44E7-A2E0-CF9D76085E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{172AE085-AE34-44E7-A2E0-CF9D76085E02}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D2073171-3552-4C7E-A7A0-7E236EDA5664}
+	EndGlobalSection
+EndGlobal
