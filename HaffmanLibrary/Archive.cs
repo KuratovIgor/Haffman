@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace HaffmanLibrary
 {
@@ -16,81 +15,55 @@ namespace HaffmanLibrary
 
         private static List<List> _listOfTree = new List<List> { }; //List for creating binary tree
 
-        private static string _code = null;
-        private static string _pathArchive = @"ARCHIVE.txt";
-        private static string _pathCodes = @"CODES.txt";
+        private static string _code = null; //
+        private static string _pathArchive = @"ARCHIVE.txt"; //Path archive file
+        private static string _pathCodes = @"CODES.txt"; //Path file with new binary codes
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
         {
-            char symbol = '\0';
-            string code = null, extraCode = null;
-            int countBit = 0;
+            //pathStart - path file with source text
+            char symbol = '\0'; //Symbol from file
+            string code = null, //Binary code for archive
+                extraCode = null; //Extra bits from byte
+            int countBit = 0; //Quantity of bits
 
             ToCountChars(pathStart); //Counting symbols in text
             CreateTree(); //Create binary tree from symbols
             CreateBinaryCodes(_listOfTree[0]); //Create new binary codes for symbols
             WriteCodesToFile(); //Save all new binary codes in file "ARCHIVE.txt"
 
-            using (StreamReader streamRead = File.OpenText(pathStart))
+            using (StreamReader streamRead = File.OpenText(pathStart)) //Read source text from file
             {
-                using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Create))
+                using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Create)) //Write arhive text to new file
                 {
-                    byte[] array;
+                    byte[] array; //Array of bytes
                     while (streamRead.Peek() != -1)
                     {
-                        symbol = Convert.ToChar(streamRead.Read());
+                        symbol = Convert.ToChar(streamRead.Read()); //Read symbol from file
 
-                        code += _binaryCodes[symbol];
+                        code += _binaryCodes[symbol]; //Creating new binary code for archive
 
                         countBit = code.Length;
 
-                        if (countBit == 8)
+                        if (countBit == 8) //If bits make up byte, translate it to symbol and write to arhcive
                         {
-                         //   using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
-                           // {
-                                List<Byte> byteList = new List<Byte>();
+                            List<Byte> byteList = new List<Byte>(); //List of bytes
 
-                                for (int i = 0; i < code.Length; i += 8)
-                                {
-                                    byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                                }
+                            for (int i = 0; i < code.Length; i += 8)
+                            {
+                                byteList.Add(Convert.ToByte(code.Substring(i, 8), 2)); //Convert string of bits to byte
+                            }
 
-                                string a = Encoding.Default.GetString(byteList.ToArray());
-                                streamWrite.Write(byteList.ToArray());
+                            streamWrite.Write(byteList.ToArray()); //Write new symbol to file
 
-                                code = null;
-                                countBit = 0;
-                            //}
+                            code = null;
+                            countBit = 0;
                         }
-                        else if (countBit > 8)
+                        else if (countBit > 8) //Extra bits relocate to next byte
                         {
                             extraCode = code.Substring(8);
                             code = code.Substring(0, code.Length - extraCode.Length);
-
-                          //  using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
-                         //   {
-                                List<Byte> byteList = new List<Byte>();
-
-                                for (int i = 0; i < code.Length; i += 8)
-                                {
-                                    byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                                }
-
-                                string a = Encoding.Default.GetString(byteList.ToArray());
-                                streamWrite.Write(byteList.ToArray());
-
-                                code = extraCode;
-                                countBit = extraCode.Length;
-                          //  }
-                        }
-                    }
-
-                    if (code != null)
-                       // using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append))
-                        {
-                            while (code.Length != 8)
-                                code += "0";
 
                             List<Byte> byteList = new List<Byte>();
 
@@ -99,71 +72,120 @@ namespace HaffmanLibrary
                                 byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
                             }
 
-                            string a = Encoding.Default.GetString(byteList.ToArray());
                             streamWrite.Write(byteList.ToArray());
 
-                            array = Encoding.Default.GetBytes(code);
+                            code = extraCode;
+                            countBit = extraCode.Length;
                         }
+                    }
+
+                    //Write last code if it exist
+                    if (code != null) 
+                    {
+                        while (code.Length != 8)
+                            code += "0";
+
+                        List<Byte> byteList = new List<Byte>();
+
+                        for (int i = 0; i < code.Length; i += 8)
+                        {
+                            byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
+                        }
+
+                        streamWrite.Write(byteList.ToArray());
+                    }
                 }
-                
             }
 
-            _binaryCodes.Clear();
-            _codesToSymbols.Clear();
+            _binaryCodes.Clear(); //Clear dictionary with new binary codes
+            _codesToSymbols.Clear(); //Clear dictionary with codes and symbols
 
             Notify?.Invoke("File was archived!");
         }
 
+        //Method for unarchiving file
         public static void UnArchive (string pathResult)
         {
             try
             {
-                string infoAboutCodes = null, codeForDictionary = null;
-                int index = 2;
+                RecoverCodes(); //Read binary code for symbols from file
 
-                using (StreamReader streamRead = File.OpenText(_pathCodes))
+                Notify?.Invoke("Please, wait...");
+
+                using (BinaryReader readBinary = new BinaryReader(File.Open(_pathArchive, FileMode.Open))) //Read archive
                 {
-                    while ((infoAboutCodes = streamRead.ReadLine()) != "========")
+                    using (StreamWriter streamWrite = new StreamWriter(pathResult, false)) //Write unarchiving text to result file
                     {
-                        while (index < infoAboutCodes.Length)
+                        string readerCodes = null; //For translate binary codes to symbols
+                        while (true)
                         {
-                            codeForDictionary += infoAboutCodes[index];
-                            index++;
-                        }
+                            byte byteFromFile = 0; //For read symbols as a byte
+                            try
+                            {
+                                byteFromFile = readBinary.ReadByte(); //Read byte from archive
+                            }
+                            catch (Exception)
+                            {
+                                try
+                                {
+                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write in unarchiving symbol to result file
+                                    break;
+                                }
+                                catch (Exception) { break; }   
+                            }
+                            
+                            string stringBits = Translate.TranslateToBinary(byteFromFile.ToString()); //String with bits of symbol
+                                                                                                     //Translate byte to bits
 
-                        index = 2;
-                        _binaryCodes.Add(infoAboutCodes[0], codeForDictionary);
-                        _codesToSymbols.Add(codeForDictionary, infoAboutCodes[0]);
-                        codeForDictionary = null;
-                    }
+                            for (int i = 0; i < stringBits.Length; i++)
+                            {
+                                try
+                                {
+                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write in unarchiving symbol to result file
+                                    readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
+                                }
+                                catch (Exception)
+                                {
+                                    readerCodes += stringBits[i]; //Push next bit to readerCode
+                                }
+                            }
+                        }
+                    }                 
                 }
 
-                using (FileStream sr = File.Open(_pathArchive, FileMode.Open))
-                {
-                    int indexInFile = 0;
-
-                    while (indexInFile < sr.Length)
-                    {
-                        byte[] array = new byte[1];
-                        sr.Read(array, 0, 1);
-                        string a = Encoding.Default.GetString(array);
-                        ///////////////////////////////////////////////////////////////////////////////////////
-                        using (StreamWriter fsr = new StreamWriter(pathResult, true))
-                        {
-                            fsr.Write(a);
-                        }
-                        /////////////////////////////////////////////////////////////////////////////////////
-                        //  byte b[] = Encoding.Default.GetBytes(a);
-
-                        indexInFile++;
-                    }                
-                }
+                Notify?.Invoke("File was unarchived!");
             }
             catch (Exception)
             {
-                Notify?.Invoke("Error when reading data from a file!");
+                Notify?.Invoke("Error when reading data to a file!"); 
             }
-        
+        }
+
+        //Method for reading binary code for symbols from file
+        private static void RecoverCodes ()
+        {
+            string infoAboutCodes = null, //For symbols and codes from file
+                codeForDictionary = null; //Binary code for pushing in dictionary
+            int index = 2; //Code start index in file
+
+            using (StreamReader streamRead = File.OpenText(_pathCodes))
+            {
+                while (streamRead.Peek() != -1)
+                {
+                    infoAboutCodes = streamRead.ReadLine(); //Read symbols and codes from file
+
+                    while (index < infoAboutCodes.Length)
+                    {
+                        codeForDictionary += infoAboutCodes[index]; //Recovering dictionary by info from file
+                        index++;
+                    }
+
+                    index = 2;
+                    _binaryCodes.Add(infoAboutCodes[0], codeForDictionary); //Push binary code in dictionary
+                    _codesToSymbols.Add(codeForDictionary, infoAboutCodes[0]); //Push symbols and codes in dictionary
+                    codeForDictionary = null;
+                }
+            }
         }
 
         //Method for counting symbols in text
@@ -257,7 +279,7 @@ namespace HaffmanLibrary
                 }
         }
 
-        //Method for writing all new binary codes to file ARCHIVE.txt
+        //Method for writing all new binary codes to file CODES.txt
         private static void WriteCodesToFile()
         {
             try
@@ -269,9 +291,7 @@ namespace HaffmanLibrary
                         streamWrite.WriteLine($"{ch} {_binaryCodes[ch]}");
                     }
 
-                    streamWrite.WriteLine("========");
-
-                    Notify?.Invoke("New binary codes was writed in file ARCHIVE.txt!");
+                    Notify?.Invoke("New binary codes was writed in file CODES.txt!");
                 }
             }
             catch (Exception)
