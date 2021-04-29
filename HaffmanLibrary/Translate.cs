@@ -11,23 +11,22 @@ namespace HaffmanLibrary
         {
             int j = 0;
 
-            int count = 0; //Quantity digits in binary
-            int decNumbers = TranslateIntegerToDecimal(stringNumber); //Записываем число в десятичной системе счисления
-            int bufDecNumbers = decNumbers; //Переменная-буфер для хранения копии десятичной записи числа,
-                                                //чтобы не изменять значение decNumbers
+            int count = 0; //Quantity digits in binary code
+            int decNumbers = TranslateIntegerToDecimal(stringNumber); //Write digit in decimal system
+            int bufDecNumbers = decNumbers; //Copy of digit in decimal system to not change decNumber
 
-            //Вычисление количества цифр в записи числа в системе счисления _basis2
+            //Calculation quantity of digits in system _basis2
             while (bufDecNumbers > 0)
             {
                 bufDecNumbers /= 2;
                 count++;
             }
 
-            char[] arrNumbers = new char[count]; //Массив цифр в системе счисления _basis2
-            char[] resultString = new char[100]; //Результат в виде числа в системе счисления _basis2
+            char[] arrNumbers = new char[count]; //Array of digits in system _basis2
+            char[] resultString = new char[100]; //Result in binary
             int index = 0;
 
-            //Перевод числа в систему счисления _basis2
+            //Translate digit in system _basis2
             while (decNumbers > 0)
             {
                 arrNumbers[index] = IntToChar(decNumbers % 2);
@@ -36,7 +35,7 @@ namespace HaffmanLibrary
             }
 
             index = 0;
-            //Запись числа в системе счисления _basis2 в корректный вид
+            //Writing digit in system _basis2 to correct view
             for (int i = 0; i < count; i++)
             {
                 resultString[i] = arrNumbers[count - 1 - i];
@@ -80,7 +79,7 @@ namespace HaffmanLibrary
             return decimalNumber;
         }
 
-        //Функция перевода символьного значения числа в целочисленное
+        //Function of translate char to int
         private static int CharToInt(char symbol)
         {
             //symbol - Символьное значения числа
@@ -91,10 +90,9 @@ namespace HaffmanLibrary
                 else return 100000;
             }
         }
-        //Функция перевода целочисленного значения числа в символьное
+        //Function of translate int to char
         private static char IntToChar(int numbers)
         {
-            //numbers - целочисленное значение числа
             if (numbers <= 9) return (char)(numbers + '0');
             else return (char)(numbers + 55);
         }

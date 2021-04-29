@@ -15,9 +15,10 @@ namespace HaffmanLibrary
 
         private static List<List> _listOfTree = new List<List> { }; //List for creating binary tree
 
-        private static string _code = null; //
+        private static string _code = null; //Binary code
         private static string _pathArchive = @"ARCHIVE.txt"; //Path archive file
         private static string _pathCodes = @"CODES.txt"; //Path file with new binary codes
+        private static int _countBitsInResult = 0; //Quantity of bits
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
@@ -57,6 +58,8 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray()); //Write new symbol to file
 
+                            _countBitsInResult += code.Length;
+
                             code = null;
                             countBit = 0;
                         }
@@ -74,6 +77,8 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray());
 
+                            _countBitsInResult += code.Length;
+
                             code = extraCode;
                             countBit = extraCode.Length;
                         }
@@ -82,6 +87,8 @@ namespace HaffmanLibrary
                     //Write last code if it exist
                     if (code != null) 
                     {
+                        _countBitsInResult += code.Length;
+
                         while (code.Length != 8)
                             code += "0";
 
@@ -116,9 +123,10 @@ namespace HaffmanLibrary
                 {
                     using (StreamWriter streamWrite = new StreamWriter(pathResult, false)) //Write unarchiving text to result file
                     {
+                        int count = 0;
                         string readerCodes = null; //For translate binary codes to symbols
                         while (true)
-                        {
+                        {    
                             byte byteFromFile = 0; //For read symbols as a byte
                             try
                             {
@@ -128,7 +136,7 @@ namespace HaffmanLibrary
                             {
                                 try
                                 {
-                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write in unarchiving symbol to result file
+                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write symbol to result file
                                     break;
                                 }
                                 catch (Exception) { break; }   
@@ -136,18 +144,21 @@ namespace HaffmanLibrary
                             
                             string stringBits = Translate.TranslateToBinary(byteFromFile.ToString()); //String with bits of symbol
                                                                                                      //Translate byte to bits
-
+                      
                             for (int i = 0; i < stringBits.Length; i++)
                             {
-                                try
-                                {
-                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write in unarchiving symbol to result file
-                                    readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
-                                }
-                                catch (Exception)
-                                {
-                                    readerCodes += stringBits[i]; //Push next bit to readerCode
-                                }
+                                if (count <= _countBitsInResult)
+                                    try
+                                    {
+                                        streamWrite.Write(_codesToSymbols[readerCodes]); //Write unarchiving symbol to result file
+                                        readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
+                                        count++;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        readerCodes += stringBits[i]; //Push next bit to readerCode
+                                        count++;
+                                    }                              
                             }
                         }
                     }                 
