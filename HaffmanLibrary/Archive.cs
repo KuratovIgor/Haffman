@@ -18,7 +18,7 @@ namespace HaffmanLibrary
         private static string _code = null; //Binary code
         private static string _pathArchive = @"ARCHIVE.txt"; //Path archive file
         private static string _pathCodes = @"CODES.txt"; //Path file with new binary codes
-        private static int _countBitsInResult = 0; //Quantity of bits
+        private static int _countBitsInResult = 0; //Quantity of bits in archive code
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
