@@ -43,7 +43,6 @@ namespace HaffmanLibrary
             {
                 using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Create)) //Write arhive text to new file
                 {
-                    byte[] array; //Array of bytes
                     while (streamRead.Peek() != -1)
                     {
                         symbol = Convert.ToChar(streamRead.Read()); //Read symbol from file
@@ -312,6 +311,7 @@ namespace HaffmanLibrary
 
                     Notify?.Invoke("New binary codes was writed in file CODES.txt!");
                 }
+
             }
             catch (Exception)
             {
