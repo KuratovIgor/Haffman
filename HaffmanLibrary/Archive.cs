@@ -16,25 +16,30 @@ namespace HaffmanLibrary
         private static List<List> _listOfTree = new List<List> { }; //List for creating binary tree
 
         private static string _code = null; //Binary code
-        private static string _pathArchive = @"ARCHIVE.txt"; //Path archive file
-        private static string _pathCodes = @"CODES.txt"; //Path file with new binary codes
+        private static string _pathStart = null;
+        private static string _pathArchive = null; //Path archive file
+        private static string _pathResult = null; //Path result file
+        private static string _pathCodes = null; //Path file with new binary codes
         private static int _countBitsInResult = 0; //Quantity of bits in archive code
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
         {
             //pathStart - path file with source text
+            _pathStart = pathStart;
             char symbol = '\0'; //Symbol from file
             string code = null, //Binary code for archive
                 extraCode = null; //Extra bits from byte
             int countBit = 0; //Quantity of bits
 
-            ToCountChars(pathStart); //Counting symbols in text
+            ToCountChars(); //Counting symbols in text
             CreateTree(); //Create binary tree from symbols
             CreateBinaryCodes(_listOfTree[0]); //Create new binary codes for symbols
-            WriteCodesToFile(); //Save all new binary codes in file "ARCHIVE.txt"
+            WriteCodesToFile(); //Save all new binary codes in file "Codes.txt"
 
-            using (StreamReader streamRead = File.OpenText(pathStart)) //Read source text from file
+            CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating archive file
+
+            using (StreamReader streamRead = File.OpenText(_pathStart)) //Read source text from file
             {
                 using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Create)) //Write arhive text to new file
                 {
@@ -111,17 +116,19 @@ namespace HaffmanLibrary
         }
 
         //Method for unarchiving file
-        public static void UnArchive (string pathResult)
+        public static void UnArchive ()
         {
             try
             {
+                CreateFile(ref _pathResult, "\\Result.txt"); //Creating result file
+
                 RecoverCodes(); //Read binary code for symbols from file
 
                 Notify?.Invoke("Please, wait...");
 
                 using (BinaryReader readBinary = new BinaryReader(File.Open(_pathArchive, FileMode.Open))) //Read archive
                 {
-                    using (StreamWriter streamWrite = new StreamWriter(pathResult, false)) //Write unarchiving text to result file
+                    using (StreamWriter streamWrite = new StreamWriter(_pathResult, false)) //Write unarchiving text to result file
                     {
                         int count = 0;
                         string readerCodes = null; //For translate binary codes to symbols
@@ -200,14 +207,13 @@ namespace HaffmanLibrary
         }
 
         //Method for counting symbols in text
-        private static void ToCountChars(string pathStart)
+        private static void ToCountChars()
         {
-            //pathStart - path of file with text
             char symbol = '\0'; //Symbol from text
 
             try
             {
-                using (StreamReader streamRead = File.OpenText(pathStart))
+                using (StreamReader streamRead = File.OpenText(_pathStart))
                 {
                     while (streamRead.Peek() != -1) //Until file don't over
                     {
@@ -290,9 +296,11 @@ namespace HaffmanLibrary
                 }
         }
 
-        //Method for writing all new binary codes to file CODES.txt
+        //Method for writing all new binary codes to file Codes.txt
         private static void WriteCodesToFile()
         {
+            CreateFile(ref _pathCodes, "\\Codes.txt"); //Creating file with codes
+
             try
             {
                 using (StreamWriter streamWrite = new StreamWriter(_pathCodes, false))
@@ -310,6 +318,15 @@ namespace HaffmanLibrary
                 Notify?.Invoke("Error when writing data to a file!");
             }
             
+        }
+
+        //Method for create files in needed directory
+        private static void CreateFile(ref string pathToFile, string nameFile)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(_pathStart); //Get directory where the start file is located
+            string pathBuf = Convert.ToString(dirInfo.Parent) + nameFile;   
+            FileInfo file = new FileInfo(pathBuf); //Create new file in this directory
+            pathToFile = Convert.ToString(file.FullName);
         }
     }
 }
