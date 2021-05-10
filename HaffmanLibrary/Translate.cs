@@ -62,12 +62,12 @@ namespace HaffmanLibrary
                 return res;
         }
 
-        //Функция перевода целой части числа в десятичную систему счисления
+        //Method for translate number to decimal system
         private static int TranslateIntegerToDecimal(string number)
         {
-            int decimalNumber = 0, //Хранит число в десятичной системе счисления
-                index = 1; //Хранит степень, в которую нужно возводить каждую цифру числа
-            int count = number.Length; //Хранит длину целочисленной части числа
+            int decimalNumber = 0, //Number in decimal system
+                index = 1; //The degree to which the number should be raised
+            int count = number.Length; //Length of the number
 
             for (int i = count - 1; i >= 0; i--)
             {
@@ -79,10 +79,9 @@ namespace HaffmanLibrary
             return decimalNumber;
         }
 
-        //Function of translate char to int
+        //Method for translate char to int
         private static int CharToInt(char symbol)
         {
-            //symbol - Символьное значения числа
             if (symbol >= '0' && symbol <= '9') return symbol - '0';
             else
             {
@@ -90,7 +89,7 @@ namespace HaffmanLibrary
                 else return 100000;
             }
         }
-        //Function of translate int to char
+        //Method for translate int to char
         private static char IntToChar(int numbers)
         {
             if (numbers <= 9) return (char)(numbers + '0');
