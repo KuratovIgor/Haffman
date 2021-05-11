@@ -9,14 +9,17 @@ namespace Haffman
         static void Main(string[] args)
         {
             //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\StartText.txt
-            //G:\Куратов И. А. 907б2\Haffman\Haffman\StartText.txt
+            //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\Archive.txt
 
             Console.WriteLine("Enter path file with text: ");
             string pathStart = Console.ReadLine();
 
             Archive.Notify += ShowMessage;
             Archive.ToArchive(pathStart);
-            Archive.UnArchive();
+
+            Console.WriteLine("Enter path file with archive: ");
+            string pathArchive = Console.ReadLine();
+            Archive.UnArchive(pathArchive);
         }
 
         private static void ShowMessage(string message)
