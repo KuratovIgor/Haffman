@@ -31,7 +31,10 @@ namespace HaffmanLibrary
         }
 
         public int Weight { get => _weight; }
-        public char Value { get => _value; }
+        public char Value { get => _value; set => _value = value; }
+
+        //Constructor
+        public List() { }
 
         //Constructor
         public List(in char value, in int weight)
@@ -44,6 +47,12 @@ namespace HaffmanLibrary
         public List(in int weight)
         {
             this._weight = weight;
+        }
+
+        //Constructor
+        public List(in char value)
+        {
+            this._value = value;
         }
 
         //Method from interface IComporable for sort

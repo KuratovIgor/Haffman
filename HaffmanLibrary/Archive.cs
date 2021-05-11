@@ -19,8 +19,6 @@ namespace HaffmanLibrary
         private static string _pathStart = null;
         private static string _pathArchive = null; //Path archive file
         private static string _pathResult = null; //Path result file
-        private static string _pathCodes = null; //Path file with new binary codes
-        private static int _countBitsInResult = 0; //Quantity of bits in archive code
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
@@ -35,9 +33,20 @@ namespace HaffmanLibrary
             ToCountChars(); //Counting symbols in text
             CreateTree(); //Create binary tree from symbols
             CreateBinaryCodes(_listOfTree[0]); //Create new binary codes for symbols
-            WriteCodesToFile(); //Save all new binary codes in file "Codes.txt"
+            CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating file with codes\
 
-         //   CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating archive file
+            try
+            {
+                using (StreamWriter streamWrite = new StreamWriter(_pathArchive, false))
+                {
+                    WriteTreeToFile(_listOfTree[0], streamWrite); //Save binary tree in file "Archive.txt"
+                    streamWrite.WriteLine();
+                }
+            }
+            catch (Exception)
+            {
+                Notify?.Invoke("Error when writing data to a file!");
+            }          
 
             using (StreamReader streamRead = File.OpenText(_pathStart)) //Read source text from file
             {
@@ -62,7 +71,7 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray()); //Write new symbol to file
 
-                            _countBitsInResult += code.Length;
+                         //   _countBitsInResult += code.Length;
 
                             code = null;
                             countBit = 0;
@@ -81,7 +90,7 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray());
 
-                            _countBitsInResult += code.Length;
+                           // _countBitsInResult += code.Length;
 
                             code = extraCode;
                             countBit = extraCode.Length;
@@ -91,7 +100,7 @@ namespace HaffmanLibrary
                     //Write last code if it exist
                     if (code != null) 
                     {
-                        _countBitsInResult += code.Length;
+                    //    _countBitsInResult += code.Length;
 
                         while (code.Length != 8)
                             code += "0";
@@ -117,35 +126,31 @@ namespace HaffmanLibrary
         //Method for unarchiving file
         public static void UnArchive (string pathArchive)
         {
+            _pathArchive = pathArchive;
             try
             {
                 CreateFile(ref _pathResult, "\\Result.txt"); //Creating result file
 
-                RecoverCodes(); //Read binary code for symbols from file
-
+                using (StreamReader streamRead = File.OpenText(_pathArchive))
+                {
+                    _listOfTree.Add(new List()); //Create first element in list for save head of tree
+                    _listOfTree[0] = RecoverTree(_listOfTree[0], streamRead); //Read binary tree from file
+                    CreateBinaryCodes(_listOfTree[0]); //Create codes from tree
+                }
+                   
                 Notify?.Invoke("Please, wait...");
 
                 using (BinaryReader readBinary = new BinaryReader(File.Open(pathArchive, FileMode.Open))) //Read archive
                 {
                     using (StreamWriter streamWrite = new StreamWriter(_pathResult, false)) //Write unarchiving text to result file
                     {
-                        int count = 0;
+                     //   int count = 0;
                         string readerCodes = null; //For translate binary codes to symbols
                         byte byteFromFile = 0; //For read symbols as a byte
 
-                        int skipDictionary = 0; //For skip dictionary in archive file
                         char charFromFile = '\0';
 
-                        while (true)
-                        {
-                            //After "//" in file begin archive text
-                            if ((charFromFile = readBinary.ReadChar()) == '/')
-                                skipDictionary++;
-                            if (skipDictionary == 2)
-                                break;
-                        }
-                        charFromFile = readBinary.ReadChar(); // \r
-                        charFromFile = readBinary.ReadChar(); // \n
+                        while ((charFromFile = readBinary.ReadChar()) != '\n') { }
 
                         while (true)
                         {                            
@@ -168,18 +173,15 @@ namespace HaffmanLibrary
                       
                             for (int i = 0; i < stringBits.Length; i++)
                             {
-                                if (count <= _countBitsInResult)
-                                    try
-                                    {
-                                        streamWrite.Write(_codesToSymbols[readerCodes]); //Write unarchiving symbol to result file
-                                        readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
-                                        count++;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        readerCodes += stringBits[i]; //Push next bit to readerCode
-                                        count++;
-                                    }                              
+                                try
+                                {
+                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write unarchiving symbol to result file
+                                    readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
+                                }
+                                catch (Exception)
+                                {
+                                    readerCodes += stringBits[i]; //Push next bit to readerCode
+                                }                              
                             }
                         }
                     }                 
@@ -193,31 +195,26 @@ namespace HaffmanLibrary
             }
         }
 
-        //Method for reading binary code for symbols from file
-        private static void RecoverCodes ()
+        //Method for reading binary tree from file
+        private static List RecoverTree (List head, StreamReader streamRead)
         {
-            string infoAboutCodes = null, //For symbols and codes from file
-                codeForDictionary = null; //Binary code for pushing in dictionary
-            int index = 2; //Code start index in file
+            List newLeftBranch = new List(); //For add element to left branch
+            List newRightBranch = new List(); //For add element to right branch
 
-            using (StreamReader streamRead = File.OpenText(_pathArchive))
+            if ((Convert.ToChar(streamRead.Read())) == '0') //0 - not list
             {
-                while ((infoAboutCodes = streamRead.ReadLine()) != "//")
-                {
-                  //  infoAboutCodes = streamRead.ReadLine(); //Read symbols and codes from file
+                head.Left = newLeftBranch;
+                RecoverTree(head.Left, streamRead);
 
-                    while (index < infoAboutCodes.Length)
-                    {
-                        codeForDictionary += infoAboutCodes[index]; //Recovering dictionary by info from file
-                        index++;
-                    }
-
-                    index = 2;
-                    _binaryCodes.Add(infoAboutCodes[0], codeForDictionary); //Push binary code in dictionary
-                    _codesToSymbols.Add(codeForDictionary, infoAboutCodes[0]); //Push symbols and codes in dictionary
-                    codeForDictionary = null;
-                }
+                head.Right = newRightBranch;
+                RecoverTree(head.Right, streamRead);
             }
+            else //1 - list
+            {
+                head.Value = Convert.ToChar(streamRead.Read()); //writing value in list
+            }
+
+            return head;
         }
 
         //Method for counting symbols in text
@@ -311,36 +308,40 @@ namespace HaffmanLibrary
         }
 
         //Method for writing all new binary codes to file Codes.txt
-        private static void WriteCodesToFile()
+        private static void WriteTreeToFile(List list, StreamWriter streamWrite)
         {
-            CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating file with codes
-
-            try
+            //If go left, 0 is writed to the file
+            if (list.Left != null)
             {
-                using (StreamWriter streamWrite = new StreamWriter(_pathArchive, false))
-                { 
-                    foreach(char ch in _binaryCodes.Keys)
-                    {
-                        streamWrite.WriteLine($"{ch} {_binaryCodes[ch]}");
-                    }
-
-                    streamWrite.WriteLine("//");
-
-                    Notify?.Invoke("New binary codes was writed in file Archive.txt!");
-                }
-
+                streamWrite.Write("0");
+                WriteTreeToFile(list.Left, streamWrite);
             }
-            catch (Exception)
+
+            if (list.Right != null)
             {
-                Notify?.Invoke("Error when writing data to a file!");
+                WriteTreeToFile(list.Right, streamWrite);
             }
-            
+
+            //if position on the list, write 1 and symbol to the file
+            if (list.Left == null && list.Right == null)
+            {
+                streamWrite.Write("1");
+                streamWrite.Write(list.Value);
+            }            
         }
 
         //Method for create files in needed directory
         private static void CreateFile(ref string pathToFile, string nameFile)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(_pathStart); //Get directory where the start file is located
+            DirectoryInfo dirInfo;
+            try
+            {
+                dirInfo = new DirectoryInfo(_pathStart); //Get directory where the start file is located
+            }
+            catch (Exception)
+            {
+                dirInfo = new DirectoryInfo(_pathArchive); //Get directory where the archive file is located
+            }
             string pathBuf = Convert.ToString(dirInfo.Parent) + nameFile;   
             FileInfo file = new FileInfo(pathBuf); //Create new file in this directory
             pathToFile = Convert.ToString(file.FullName);
