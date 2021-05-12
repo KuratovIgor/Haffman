@@ -19,6 +19,8 @@ namespace HaffmanLibrary
         private static string _pathStart = null;
         private static string _pathArchive = null; //Path archive file
         private static string _pathResult = null; //Path result file
+        private static string _bufPath = null; //Path buf file
+        private static int _countBitsInResult = 0; //Count bits in archive text
 
         //Method for archiving file
         public static void ToArchive(string pathStart)
@@ -33,7 +35,8 @@ namespace HaffmanLibrary
             ToCountChars(); //Counting symbols in text
             CreateTree(); //Create binary tree from symbols
             CreateBinaryCodes(_listOfTree[0]); //Create new binary codes for symbols
-            CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating file with codes\
+            CreateFile(ref _pathArchive, "\\Archive.txt"); //Creating file with codes
+            CreateFile(ref _bufPath, "\\bufFile.txt"); //Creating buf file
 
             try
             {
@@ -50,7 +53,7 @@ namespace HaffmanLibrary
 
             using (StreamReader streamRead = File.OpenText(_pathStart)) //Read source text from file
             {
-                using (FileStream streamWrite = new FileStream(_pathArchive, FileMode.Append)) //Write arhive text to new file
+                using (FileStream streamWrite = new FileStream(_bufPath, FileMode.Create)) //Write arhive text to buf file
                 {
                     while (streamRead.Peek() != -1)
                     {
@@ -71,7 +74,7 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray()); //Write new symbol to file
 
-                         //   _countBitsInResult += code.Length;
+                            _countBitsInResult += code.Length;
 
                             code = null;
                             countBit = 0;
@@ -90,7 +93,7 @@ namespace HaffmanLibrary
 
                             streamWrite.Write(byteList.ToArray());
 
-                           // _countBitsInResult += code.Length;
+                            _countBitsInResult += code.Length;
 
                             code = extraCode;
                             countBit = extraCode.Length;
@@ -100,7 +103,7 @@ namespace HaffmanLibrary
                     //Write last code if it exist
                     if (code != null) 
                     {
-                    //    _countBitsInResult += code.Length;
+                        _countBitsInResult += code.Length;
 
                         while (code.Length != 8)
                             code += "0";
@@ -115,6 +118,30 @@ namespace HaffmanLibrary
                         streamWrite.Write(byteList.ToArray());
                     }
                 }
+
+                using (StreamWriter strWr = new StreamWriter(_pathArchive, true))
+                {
+                    strWr.WriteLine(Convert.ToString(_countBitsInResult));
+                }
+
+                using (FileStream read = File.OpenRead(_bufPath)) //Read archive from buf file
+                {
+                    using (FileStream write = new FileStream(_pathArchive, FileMode.Append)) //Move archive text to file with tree
+                    {
+                        while (read.Position != read.Length)
+                        {
+                            byte[] array = new byte[1];
+                            read.Read(array, 0, 1);
+                            string textFromFile = System.Text.Encoding.Default.GetString(array);
+
+                            byte[] array2 = new byte[1];
+                            array2 = System.Text.Encoding.Default.GetBytes(textFromFile);
+                            write.Write(array, 0, array.Length);
+                        }                      
+                    }
+                }
+
+                File.Delete(_bufPath); //Delete buf file
             }
 
             _binaryCodes.Clear(); //Clear dictionary with new binary codes
@@ -144,13 +171,20 @@ namespace HaffmanLibrary
                 {
                     using (StreamWriter streamWrite = new StreamWriter(_pathResult, false)) //Write unarchiving text to result file
                     {
-                     //   int count = 0;
+                        int count = 0;
                         string readerCodes = null; //For translate binary codes to symbols
                         byte byteFromFile = 0; //For read symbols as a byte
 
                         char charFromFile = '\0';
 
                         while ((charFromFile = readBinary.ReadChar()) != '\n') { }
+                        while ((charFromFile = readBinary.ReadChar()) != '\r') //Reading count bits from file
+                        {
+                            _countBitsInResult += Translate.CharToInt(charFromFile);
+                            _countBitsInResult *= 10;
+                        }
+                        _countBitsInResult /= 10;
+                        charFromFile = readBinary.ReadChar();
 
                         while (true)
                         {                            
@@ -173,15 +207,18 @@ namespace HaffmanLibrary
                       
                             for (int i = 0; i < stringBits.Length; i++)
                             {
-                                try
-                                {
-                                    streamWrite.Write(_codesToSymbols[readerCodes]); //Write unarchiving symbol to result file
-                                    readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
-                                }
-                                catch (Exception)
-                                {
-                                    readerCodes += stringBits[i]; //Push next bit to readerCode
-                                }                              
+                                if (count <= _countBitsInResult)
+                                    try
+                                    {
+                                        streamWrite.Write(_codesToSymbols[readerCodes]); //Write unarchiving symbol to result file
+                                        readerCodes = Convert.ToString(stringBits[i]); //Write in readerCodes first element of next code
+                                        count++;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        readerCodes += stringBits[i]; //Push next bit to readerCode
+                                        count++;
+                                    }                              
                             }
                         }
                     }                 

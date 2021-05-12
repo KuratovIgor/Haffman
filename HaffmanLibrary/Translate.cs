@@ -80,7 +80,7 @@ namespace HaffmanLibrary
         }
 
         //Method for translate char to int
-        private static int CharToInt(char symbol)
+        public static int CharToInt(char symbol)
         {
             if (symbol >= '0' && symbol <= '9') return symbol - '0';
             else
