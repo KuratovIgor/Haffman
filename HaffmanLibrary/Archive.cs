@@ -348,14 +348,10 @@ namespace HaffmanLibrary
         private static void WriteTreeToFile(List list, StreamWriter streamWrite)
         {
             //If go left, 0 is writed to the file
-            if (list.Left != null)
+            if (list.Left != null || list.Right != null)
             {
                 streamWrite.Write("0");
                 WriteTreeToFile(list.Left, streamWrite);
-            }
-
-            if (list.Right != null)
-            {
                 WriteTreeToFile(list.Right, streamWrite);
             }
 
