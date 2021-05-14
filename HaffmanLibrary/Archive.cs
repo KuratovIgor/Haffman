@@ -142,6 +142,7 @@ namespace HaffmanLibrary
                 }
 
                 File.Delete(_bufPath); //Delete buf file
+                _countBitsInResult = 0;
             }
 
             _binaryCodes.Clear(); //Clear dictionary with new binary codes

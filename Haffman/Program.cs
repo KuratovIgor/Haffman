@@ -19,29 +19,49 @@ namespace Haffman
 
             while (true)
             {
-                Console.WriteLine("Enter key: ");
-                key = Convert.ToInt32(Console.ReadLine());
-
-                switch (key)
+                try
                 {
-                    case 1:
-                        {
-                            Console.WriteLine("Enter path file with text: ");
-                            string pathStart = Console.ReadLine();
-                            Archive.ToArchive(pathStart);
-                        }
-                        break;
-                    case 2:
-                        {
-                            Console.WriteLine("Enter path file with archive: ");
-                            string pathArchive = Console.ReadLine();
-                            Archive.UnArchive(pathArchive);
-                        }
-                        break;
-                    case 3:
-                        {
-                            Environment.Exit(1);
-                        }break;
+                    Console.WriteLine("Enter key: ");
+                    key = Convert.ToInt32(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.Write("Please, enter digit! ");
+                }
+
+                try
+                {
+                    switch (key)
+                    {
+                        case 1:
+                            {
+                                Console.WriteLine("Enter path file with text: ");
+                                string pathStart = Console.ReadLine();
+                                Archive.ToArchive(pathStart);
+                            }
+                            break;
+                        case 2:
+                            {
+                                Console.WriteLine("Enter path file with archive: ");
+                                string pathArchive = Console.ReadLine();
+                                Archive.UnArchive(pathArchive);
+                            }
+                            break;
+                        case 3:
+                            {
+                                Environment.Exit(1);
+                            }
+                            break;
+                        default:
+                            {
+                                Console.WriteLine("Key isn't correct!");
+                            }
+                            break;
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Maybe mistake in path to file.");
                 }
             }
         }
