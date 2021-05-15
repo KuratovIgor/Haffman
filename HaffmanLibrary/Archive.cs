@@ -16,7 +16,7 @@ namespace HaffmanLibrary
         private static List<List> _listOfTree = new List<List> { }; //List for creating binary tree
 
         private static string _code = null; //Binary code
-        private static string _pathStart = null;
+        private static string _pathStart = null; //Path start file
         private static string _pathArchive = null; //Path archive file
         private static string _pathResult = null; //Path result file
         private static string _bufPath = null; //Path buf file
@@ -44,6 +44,7 @@ namespace HaffmanLibrary
                 {
                     WriteTreeToFile(_listOfTree[0], streamWrite); //Save binary tree in file "Archive.txt"
                     streamWrite.WriteLine();
+                    streamWrite.WriteLine("---"); //Dividing line
                 }
             }
             catch (Exception)
@@ -67,10 +68,7 @@ namespace HaffmanLibrary
                         {
                             List<Byte> byteList = new List<Byte>(); //List of bytes
 
-                            for (int i = 0; i < code.Length; i += 8)
-                            {
-                                byteList.Add(Convert.ToByte(code.Substring(i, 8), 2)); //Convert string of bits to byte
-                            }
+                            byteList.Add(Convert.ToByte(code, 2)); //Convert string of bits to byte
 
                             streamWrite.Write(byteList.ToArray()); //Write new symbol to file
 
@@ -86,10 +84,7 @@ namespace HaffmanLibrary
 
                             List<Byte> byteList = new List<Byte>();
 
-                            for (int i = 0; i < code.Length; i += 8)
-                            {
-                                byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                            }
+                            byteList.Add(Convert.ToByte(code, 2));
 
                             streamWrite.Write(byteList.ToArray());
 
@@ -110,10 +105,7 @@ namespace HaffmanLibrary
 
                         List<Byte> byteList = new List<Byte>();
 
-                        for (int i = 0; i < code.Length; i += 8)
-                        {
-                            byteList.Add(Convert.ToByte(code.Substring(i, 8), 2));
-                        }
+                        byteList.Add(Convert.ToByte(code, 2));
 
                         streamWrite.Write(byteList.ToArray());
                     }
@@ -172,13 +164,24 @@ namespace HaffmanLibrary
                 {
                     using (StreamWriter streamWrite = new StreamWriter(_pathResult, false)) //Write unarchiving text to result file
                     {
-                        int count = 0;
+                        int count = 0; //For counting bits
                         string readerCodes = null; //For translate binary codes to symbols
                         byte byteFromFile = 0; //For read symbols as a byte
 
                         char charFromFile = '\0';
 
-                        while ((charFromFile = readBinary.ReadChar()) != '\n') { }
+                        int countLine = 0; //Count '-' for searching dividing line
+                        while (countLine != 3) //Searching dividing line
+                        {
+                            if ((charFromFile = readBinary.ReadChar()) == '-')
+                                countLine++;
+                            else
+                                countLine = 0;
+
+                        }
+                        charFromFile = readBinary.ReadChar();
+                        charFromFile = readBinary.ReadChar();
+
                         while ((charFromFile = readBinary.ReadChar()) != '\r') //Reading count bits from file
                         {
                             _countBitsInResult += Translate.CharToInt(charFromFile);
