@@ -9,7 +9,7 @@ namespace Haffman
         static void Main(string[] args)
         {
             //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\StartText.txt
-            //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\Archive.txt
+            //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\StartText.Arch.txt
 
             ShowMenu();
 
