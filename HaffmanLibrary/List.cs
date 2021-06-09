@@ -8,8 +8,8 @@ namespace HaffmanLibrary
     {
         private char _value = '\0'; //Symbol from text
         private readonly int _weight = 0; //Quantity of symbol in text
-        private List left = null; //Left list of tree
-        private List right = null; //Right list of tree
+        private List left = null; 
+        private List right = null; 
         private string _code = null; //New binary code of this symbol
 
         public List Left
