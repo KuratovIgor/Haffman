@@ -6,16 +6,16 @@ namespace Haffman
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\StartText.txt
-            //C:\Users\kurat\source\repos\Разработка ПМ\Haffman\Haffman\StartText.Arch.txt
+            //C:\Users\kurat\source\repos\Haffman\Haffman\StartText.txt
+            //C:\Users\kurat\source\repos\Haffman\Haffman\StartText.Arch.txt
 
             ShowMenu();
 
             int key = 0;
 
-            Archive.Notify += ShowMessage;
+            HuffmanArchiver.Notify += ShowMessage;
 
             while (true)
             {
@@ -37,14 +37,14 @@ namespace Haffman
                             {
                                 Console.WriteLine("Enter path file with text: ");
                                 string pathStart = Console.ReadLine();
-                                Archive.ToArchive(pathStart);
+                                HuffmanArchiver.Archive(pathStart);
                             }
                             break;
                         case 2:
                             {
                                 Console.WriteLine("Enter path file with archive: ");
                                 string pathArchive = Console.ReadLine();
-                                Archive.UnArchive(pathArchive);
+                                HuffmanArchiver.UnArchive(pathArchive);
                             }
                             break;
                         case 3:

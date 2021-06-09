@@ -7,7 +7,7 @@ namespace HaffmanLibrary
     class List : IComparable<List>
     {
         private char _value = '\0'; //Symbol from text
-        private int _weight = 0; //Quantity of symbol in text
+        private readonly int _weight = 0; //Quantity of symbol in text
         private List left = null; //Left list of tree
         private List right = null; //Right list of tree
         private string _code = null; //New binary code of this symbol
